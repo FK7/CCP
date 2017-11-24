@@ -1,0 +1,40 @@
+$ wget http://repo.mysql.com/mysql-community-release-el7-5.noarch.rpm
+$ sudo rpm -ivh mysql-community-release-el7-5.noarch.rpm
+$ yum update
+$ sudo yum install mysql-server
+$ sudo systemctl start mysqld
+
+#Set the MySQL root password. In the following example, the current root password is blank. Press the Enter key when you're prompted for the root password.
+
+$ sudo /usr/bin/mysql_secure_installation
+[...]
+Enter current password for root (enter for none):
+OK, successfully used password, moving on...
+[...]
+Set root password? [Y/n] y
+New password:
+Re-enter new password:
+Remove anonymous users? [Y/n] Y
+[...]
+Disallow root login remotely? [Y/n] N
+[...]
+Remove test database and access to it [Y/n] Y
+[...]
+Reload privilege tables now? [Y/n] Y
+All done!
+
+mysql> create database retail_db;
+Query OK, 1 row affected (0.00 sec)
+
+mysql> create user retail_dba identified by 'cloudera';
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> grant all on retail_db.* to retail_dba;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> flush privileges;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> use retail_db;
+Database changed
+mysql> source /home/ec2-user/retail_db.sql

@@ -1,0 +1,91 @@
+[hadoop@jusdrhhded1r1 ~]$ sqoop eval \
+> --username svc-DT_PI_Integ \
+> -P \
+> --connection-param-file param_file \
+> --connect "jdbc:pioledb://10.33.103.42/Data Source=ss-jhd-dtda-2;Integrated Security=SSPI;Command Timeout=6000000;Connect Timeout = 1000000000;" \
+> --driver com.osisoft.jdbc.Driver \
+> -e "SELECT tag, time, value FROM piarchive..picomp WHERE tag like 'PK.OLF3.C4RT23.PV' AND time BETWEEN '01/01/2017 12:00:00 AM' AND '01/01/2017 12:10:00 AM'"
+Warning: /opt/cloudera/parcels/CDH-5.14.2-1.cdh5.14.2.p0.3/bin/../lib/sqoop/../accumulo does not exist! Accumulo imports will fail.
+Please set $ACCUMULO_HOME to the root of your Accumulo installation.
+19/03/06 16:02:08 INFO sqoop.Sqoop: Running Sqoop version: 1.4.6-cdh5.14.2
+19/03/06 16:02:08 WARN tool.BaseSqoopTool: Setting your password on the command-line is insecure. Consider using -P instead.
+19/03/06 16:02:08 WARN sqoop.ConnFactory: Parameter --driver is set to an explicit driver however appropriate connection manager is not being set (via --connection-manager). Sqoop is going to fall back to org.apache.sqoop.manager.GenericJdbcManager. Please specify explicitly which connection manager should be used next time.
+19/03/06 16:02:08 INFO manager.SqlManager: Using default fetchSize of 1000
+Mar 06, 2019 4:02:08 PM com.osisoft.jdbc.Driver getVersionInfo
+WARNING: Not run from a jar file, or jar file manifest does not contain Specification Version
+Mar 06, 2019 4:02:08 PM com.osisoft.jdbc.DriverExtension <init>
+FINER: Driver Version : 0.9.99.0255
+Mar 06, 2019 4:02:08 PM com.osisoft.jdbc.DriverExtension <init>
+INFO: New Connection : jdbc:pioledb://10.33.103.42/Data Source=ss-jhd-dtda-2;Integrated Security=SSPI;Command Timeout=6000000;Connect Timeout = 1000000000;
+Mar 06, 2019 4:02:08 PM com.osisoft.jdbc.DriverExtension logProperties
+FINEST: Properties: 
+ LogLevel=5
+ user=********
+ LogConsole=True
+ password=********
+Mar 06, 2019 4:02:08 PM com.osisoft.rdsa.NativeRDSA verifyWrapperLibrary
+FINEST: /opt/sdc-extras/streamsets-datacollector-jdbc-lib/lib/libRdsaWrapper64-1.5.3b.so can be loaded.
+Mar 06, 2019 4:02:08 PM com.osisoft.jdbc.DriverExtension getAuthentication
+FINEST: Searching Properties for "user" or "DCA" 
+Mar 06, 2019 4:02:08 PM com.osisoft.jdbc.DriverExtension getAuthentication
+FINEST: RDSAAuth built from properties:RDSAAuth[10.33.103.42\/********/******** ]
+
+Mar 06, 2019 4:02:08 PM com.osisoft.jdbc.DriverExtension connect
+FINE: DAS Authentication with : RDSAAuth[10.33.103.42\/********/******** ]
+
+Mar 06, 2019 4:02:08 PM com.osisoft.jdbc.ConnectionImpl <init>
+FINE: No protocol order specified, using default protocols and ports
+Mar 06, 2019 4:02:08 PM com.osisoft.jdbc.ConnectionImpl <init>
+FINEST:  Trusted connection = false 
+ Stateless connection = false
+Mar 06, 2019 4:02:08 PM com.osisoft.rdsa.NativeRDSA create
+INFO: Trying to connect to https://10.33.103.42:5461/DataAccessServer/Query
+Mar 06, 2019 4:02:08 PM com.osisoft.jdbc.ConnectionImpl <init>
+FINEST: Successfully connected to https://10.33.103.42:5461/DataAccessServer/Query
+Mar 06, 2019 4:02:08 PM com.osisoft.jdbc.ConnectionImpl <init>
+FINEST: Successfully connected to the data source using "Provider=PIOLEDB; Session ID=-1;Data Source=ss-jhd-dtda-2;Integrated Security=SSPI;Command Timeout=6000000;Connect Timeout = 1000000000;Log File= ; Time Zone=local; Always Return Rowset=false;"
+Mar 06, 2019 4:02:08 PM com.osisoft.jdbc.ConnectionImpl setTransactionIsolation
+SEVERE: setTransactionIsolation() is not supported by PI SQL DAS
+Mar 06, 2019 4:02:08 PM com.osisoft.jdbc.ConnectionImpl setAutoCommit
+SEVERE: setAutoCommit(false) is not supported by PI SQL DAS
+Mar 06, 2019 4:02:08 PM com.osisoft.jdbc.PreparedStatementImpl create
+FINER: Created PreparedStatement
+    SELECT tag, time, value FROM piarchive..picomp WHERE tag like 'PK.OLF3.C4RT23.PV' AND time BETWEEN '01/01/2017 12:00:00 AM' AND '01/01/2017 12:10:00 AM'
+Mar 06, 2019 4:02:08 PM com.osisoft.jdbc.StatementImpl isClosed
+FINEST: Statement#isClosed() returns false
+Mar 06, 2019 4:02:08 PM com.osisoft.jdbc.ResultSetImpl <init>
+FINEST: com.osisoft.jdbc.ResultSetImpl@51f116b8 created
+Mar 06, 2019 4:02:08 PM com.osisoft.jdbc.StatementImpl isClosed
+FINEST: Statement#isClosed() returns false
+Mar 06, 2019 4:02:08 PM com.osisoft.jdbc.ResultSetImpl isClosed
+FINEST: isClosed() checks if rdsaReader was destroyed
+Mar 06, 2019 4:02:08 PM com.osisoft.jdbc.ResultSetImpl isClosed
+FINEST: isClosed() checks if rdsaReader was destroyed
+Mar 06, 2019 4:02:08 PM com.osisoft.jdbc.ResultSetMetaImpl getColumnDisplaySize
+FINEST: Col 1 : displaySize =8000
+Mar 06, 2019 4:02:08 PM com.osisoft.jdbc.ResultSetMetaImpl getColumnDisplaySize
+FINEST: Col 2 : displaySize =16
+Mar 06, 2019 4:02:08 PM com.osisoft.jdbc.ResultSetMetaImpl getColumnDisplaySize
+FINEST: Col 3 : displaySize =8
+Mar 06, 2019 4:02:08 PM com.osisoft.jdbc.ResultSetImpl getString
+FINEST: getString(1) = PK.OLF3.C4RT23.PV
+Mar 06, 2019 4:02:08 PM com.osisoft.jdbc.ResultSetImpl getString
+FINEST: getString(2) = 2017-01-01 00:09:14.0
+Mar 06, 2019 4:02:08 PM com.osisoft.jdbc.ResultSetImpl getString
+FINEST: getString(3) = 19.9656677
+------------------------------------------------------
+| tag                  | time             | value    | 
+------------------------------------------------------
+| PK.OLF3.C4RT23.PV    | 2017-01-01 00:09:14.0 | 19.9656677 | 
+------------------------------------------------------
+Mar 06, 2019 4:02:08 PM com.osisoft.jdbc.StatementImpl isClosed
+FINEST: Statement#isClosed() returns false
+Mar 06, 2019 4:02:08 PM com.osisoft.jdbc.StatementImpl getMoreResults
+FINEST: Statement#getMoreResults(), PI JDBC Driver never returns more than one result.
+Mar 06, 2019 4:02:08 PM com.osisoft.jdbc.ResultSetImpl close
+FINEST: com.osisoft.jdbc.ResultSetImpl@51f116b8 closed
+Mar 06, 2019 4:02:08 PM com.osisoft.jdbc.StatementImpl isClosed
+FINEST: Statement#isClosed() returns false
+Mar 06, 2019 4:02:09 PM com.osisoft.jdbc.DriverExtension closeLogging
+INFO: Close Logging
+[hadoop@jusdrhhded1r1 ~]$

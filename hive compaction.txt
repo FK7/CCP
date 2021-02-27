@@ -1,0 +1,67 @@
+<workflow-app name="petrokemya.pk_olefin3_nrt_interpolated Hive table compaction" xmlns="uri:oozie:workflow:0.4">
+
+  <credentials>
+    <credential name="hive2" type="hive2">
+      <property>
+        <name>hive2.jdbc.url</name>
+        <value>${hive_jdbc_url}</value>
+      </property>
+      <property>
+        <name>hive2.server.principal</name>
+        <value>${hive_kerberos_principal}</value>
+      </property>
+    </credential>
+  </credentials>
+
+  <start to="table-compaction"/>
+
+  <action name="table-compaction" cred="hive2">
+    <hive2 xmlns="uri:oozie:hive2-action:0.1">
+      <job-tracker>${resourceManager}</job-tracker>
+      <name-node>${nameNode}</name-node>
+      <jdbc-url>${hive_jdbc_url}</jdbc-url>
+      <script>compaction.hql</script>
+      <param>inputTableName=${inputTableName}</param>
+      <param>outputTableName=${outputTableName}</param>
+      <param>partitionYear=${coord:formatTime(coord:dateOffset(coord:nominalTime(), -1, 'DAY'),'yyyy')}</param>
+      <param>partitionMonth=${coord:formatTime(coord:dateOffset(coord:nominalTime(), -1, 'DAY'),'MM')}</param>
+      <param>partitionDay=${coord:formatTime(coord:dateOffset(coord:nominalTime(), -1, 'DAY'),'dd')}</param>
+    </hive2>
+    <ok to="End"/>
+    <error to="Kill"/>
+  </action>
+
+  <kill name="Kill">
+    <message>"Killed job due to error: "{wf:errorMessage(wf:lastErrorNode())}"</message>
+  </kill>
+  <end name="End"/>
+
+</workflow-app>
+
+########################## Job.properties#############################
+
+### Environment variables ####
+hiveServer2=jusdrhhdmd1r1.sabic.com
+
+
+#### Hive variables ####
+hive_jdbc_url=jdbc:hive2://${hiveServer2}:10000/default
+hive_kerberos_principal=hive/${hiveServer2}@SABICCORP.SABIC.COM
+
+nameNode=hdfs://sabic-dev-ns
+resourceManager=yarnrm
+
+inputTableName=petrokemya.pk_olefin3_nrt_interpolated
+outputTableName=temp.pk_compacted
+
+#### Oozie properties ####
+oozie.use.system.libpath=true
+oozie.wf.rerun.failnodes=true
+oozie.wf.application.path=/path/to/oozie/job
+
+################compaction.hql#################################
+
+insert overwrite table ${outputTableName}
+partition(year=${partitionYear}, month=${partitionMonth}, day=${partitionDay})
+select time,tag,value from ${inputTableName}
+where year = ${partitionYear} and month = ${partitionMonth} and day = ${partitionDay};

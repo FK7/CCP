@@ -1,0 +1,34 @@
+keytool -genkeypair -alias $(hostname -f) -keyalg RSA -keystore /opt/datapred/security/jks/$(hostname -f)-keystore.jks -keysize 2048 -dname "CN=$(hostname -f),OU=DigitalTransformation,O=SABIC,L=Jubail,C=SA" -ext san=dns:$(hostname -f),dns:$(hostname -s).sabiccorp.com -storepass rK7rt6Z7KWP9 -keypass rK7rt6Z7KWP9 
+
+keytool -certreq -alias $(hostname -f) -keystore /opt/datapred/security/jks/$(hostname -f)-keystore.jks -file /opt/datapred/security/csr/$(hostname -f)-keystore.csr -ext san=dns:$(hostname -f),dns:$(hostname -s).sabiccorp.com -ext EKU=serverAuth,clientAuth -storepass rK7rt6Z7KWP9 -keypass rK7rt6Z7KWP9
+
+
+
+https://certweb/certsrv/
+
+Security Services-Access Mgmt -  Identity Management Request
+
+Please sign and return the certificates as per the below instructions -
+
+•	The signed certificates must be provided in PEM format with base-64 encoding
+•	The signed certificates must have the same name as the associated CSR file, with a .pem extension instead of .csr
+
+Request Id is :863839
+Request Id is : 867584
+
+
+after downloading the certificates copy to it to the servers and rename accordingly
+
+scp intca.cer intca.pem
+scp $(hostname -f).cer $(hostname -f).pem
+cat intca.pem >> $(hostname -f).pem
+
+scp $(hostname -f).pem /opt/datapred/security/x509/
+
+keytool -importcert -alias $(hostname -f) -file /opt/datapred/security/x509/$(hostname -f).pem -keystore /opt/datapred/security/jks/$(hostname -f)-keystore.jks
+rK7rt6Z7KWP9
+
+keytool -importkeystore -srckeystore /opt/datapred/security/jks/$(hostname -f)-keystore.jks -srcstorepass rK7rt6Z7KWP9 -srckeypass rK7rt6Z7KWP9  -destkeystore /opt/datapred/security/x509/$(hostname -f)-key.p12 -deststoretype PKCS12 -srcalias $(hostname -f) -deststorepass rK7rt6Z7KWP9 -destkeypass rK7rt6Z7KWP9
+
+openssl pkcs12 -in /opt/datapred/security/x509/$(hostname -f)-key.p12 -passin pass:rK7rt6Z7KWP9 -nocerts -out /opt/datapred/security/x509/$(hostname -f)-key.pem -passout pass:rK7rt6Z7KWP9 
+

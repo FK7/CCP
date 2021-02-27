@@ -1,0 +1,147 @@
+*********************************************
+ON ALL HOSTS
+*********************************************
+sudo su -
+set +o history
+
+hostname -f
+hostname -s
+
+mkdir -p /tmp/renew_certs_2020/csr
+mkdir -p /tmp/renew_certs_2020/cer
+scp -rp /opt/cloudera/security /opt/cloudera/security_backup_april_2020
+mkdir /opt/cloudera/security/renew_certs_2020
+mkdir /opt/cloudera/security/renew_certs_2020/jks
+mkdir /opt/cloudera/security/renew_certs_2020/csr
+mkdir /opt/cloudera/security/renew_certs_2020/x509
+
+
+keytool -genkeypair -alias $(hostname -f) -keyalg RSA -keystore /opt/cloudera/security/renew_certs_2020/jks/$(hostname -f)-keystore.jks -keysize 2048 -dname "CN=$(hostname -f),OU=DigitalTransformation,O=SABIC,L=Jubail,C=SA" -ext san=dns:$(hostname -f),dns:$(hostname -s).sabiccorp.com -storepass rK7rt6Z7KWP9 -keypass rK7rt6Z7KWP9
+
+--------------------------
+if you get keytool bad command then update below:
+cat /etc/profile
+cat /etc/bashrc
+export JAVA_HOME=/usr/java/latest
+export PATH="$PATH:$JAVA_HOME/bin"
+source /etc/profile
+source /etc/bashrc
+--------------------------------
+
+
+keytool -certreq -alias $(hostname -f) -keystore /opt/cloudera/security/renew_certs_2020/jks/$(hostname -f)-keystore.jks -file /opt/cloudera/security/renew_certs_2020/csr/$(hostname -f).csr -ext san=dns:$(hostname -f),dns:$(hostname -s).sabiccorp.com -ext EKU=serverAuth,clientAuth -storepass rK7rt6Z7KWP9 -keypass rK7rt6Z7KWP9
+
+
+scp -r /opt/cloudera/security/renew_certs_2020/csr/* /tmp/renew_certs_2020/csr/
+chown -R hadoop:hadoop /tmp/renew_certs_2020/
+
+*********************************************
+ONLY ON CDSW MASTER HOST
+*********************************************
+sudo su -
+set +o history
+
+mkdir /opt/cloudera/security/renew_certs_2020/tls/
+
+scp /opt/cloudera/security/tls/cdsw.cnf /opt/cloudera/security/renew_certs_2020/tls/
+
+openssl req -out /opt/cloudera/security/renew_certs_2020/tls/cert.csr -newkey rsa:2048 -nodes -keyout /opt/cloudera/security/renew_certs_2020/tls/private.key -config /opt/cloudera/security/renew_certs_2020/tls/cdsw.cnf
+
+
+scp /opt/cloudera/security/renew_certs_2020/tls/cert.csr /tmp/renew_certs_2020/csr/
+chown -R hadoop:hadoop /tmp/renew_certs_2020/
+
+
+
+*****************************************************
+Copy and paste the content of csr in https://certweb/certsrv/
+*****************************************************
+
+
+sudo su -
+set +o history
+
+cat /tmp/renew_certs_2020/csr/$(hostname -f).csr
+
+
+---------------
+This is only for CDSW master:
+cat /tmp/renew_certs_2020/csr/cert.csr
+
+------------------
+
+
+****************************************************************************************************************************************************
+Once Certificates are signed by Active Directory team, download them with base-64 encoding in cer/pem format. Also download the intermediate certificate
+****************************************************************************************************************************************************
+
+sudo su -
+set +o history
+
+scp /tmp/renew_certs_2020/cer/$(hostname -f).cer /tmp/renew_certs_2020/cer/$(hostname -f).pem
+
+scp /tmp/renew_certs_2020/cer/intca.cer /tmp/renew_certs_2020/cer/intca.pem
+
+cat /tmp/renew_certs_2020/cer/intca.pem >> /tmp/renew_certs_2020/cer/$(hostname -f).pem
+
+scp /tmp/renew_certs_2020/cer/$(hostname -f).pem /opt/cloudera/security/x509/
+
+keytool -importcert -alias $(hostname -f) -file /opt/cloudera/security/x509/$(hostname -f).pem -keystore /opt/cloudera/security/renew_certs_2020/jks/$(hostname -f)-keystore.jks
+
+password: rK7rt6Z7KWP9
+scp /opt/cloudera/security/renew_certs_2020/jks/$(hostname -f)-keystore.jks /opt/cloudera/security/jks/$(hostname -f)-keystore.jks
+
+
+keytool -importkeystore -srckeystore /opt/cloudera/security/jks/$(hostname -f)-keystore.jks -srcstorepass rK7rt6Z7KWP9 -srckeypass rK7rt6Z7KWP9  -destkeystore /opt/cloudera/security/x509/$(hostname -f)-key.p12 -deststoretype PKCS12 -srcalias $(hostname -f) -deststorepass rK7rt6Z7KWP9 -destkeypass rK7rt6Z7KWP9
+
+
+
+openssl pkcs12 -in /opt/cloudera/security/x509/$(hostname -f)-key.p12 -passin pass:rK7rt6Z7KWP9 -nocerts -out /opt/cloudera/security/x509/$(hostname -f)-key.pem -passout pass:rK7rt6Z7KWP9
+
+
+
+
+**********************************************************************
+
+ON ALL HOSTS
+***********************************************************************
+
+scp /opt/cloudera/security/x509/$(hostname -f)-key.pem /opt/cloudera/security/x509/key-hue.pem
+scp /opt/cloudera/security/x509/$(hostname -f)-key.pem /opt/cloudera/security/x509/key-impala.pem
+scp /opt/cloudera/security/x509/$(hostname -f)-key.pem /opt/cloudera/security/x509/key-keytrustee.pem
+scp /opt/cloudera/security/jks/$(hostname -f)-keystore.jks /opt/cloudera/security/jks/keystore-hbase.jks
+scp /opt/cloudera/security/jks/$(hostname -f)-keystore.jks /opt/cloudera/security/jks/keystore-hdfs.jks 
+scp /opt/cloudera/security/jks/$(hostname -f)-keystore.jks /opt/cloudera/security/jks/keystore-hive.jks 
+scp /opt/cloudera/security/jks/$(hostname -f)-keystore.jks /opt/cloudera/security/jks/keystore-httpfs.jks 
+scp /opt/cloudera/security/jks/$(hostname -f)-keystore.jks /opt/cloudera/security/jks/keystore-impala.jks 
+scp /opt/cloudera/security/jks/$(hostname -f)-keystore.jks /opt/cloudera/security/jks/keystore-kafka.jks 
+scp /opt/cloudera/security/jks/$(hostname -f)-keystore.jks /opt/cloudera/security/jks/keystore-kms.jks 
+scp /opt/cloudera/security/jks/$(hostname -f)-keystore.jks /opt/cloudera/security/jks/keystore-oozie.jks 
+scp /opt/cloudera/security/jks/$(hostname -f)-keystore.jks /opt/cloudera/security/jks/keystore-sdc.jks 
+scp /opt/cloudera/security/jks/$(hostname -f)-keystore.jks /opt/cloudera/security/jks/keystore-solr.jks 
+scp /opt/cloudera/security/jks/$(hostname -f)-keystore.jks /opt/cloudera/security/jks/keystore-spark.jks 
+scp /opt/cloudera/security/jks/$(hostname -f)-keystore.jks /opt/cloudera/security/jks/keystore-yarn.jks 
+scp /opt/cloudera/security/jks/$(hostname -f)-keystore.jks /opt/cloudera/security/jks/keystore-zookeeper.jks 
+
+
+
+********************************
+
+ONLY ON MASTER CDSW
+**********************************
+
+scp /tmp/renew_certs_2020/cer/cert.cer /opt/cloudera/security/renew_certs_2020/tls/$(hostname -f).pem
+scp -r /opt/cloudera/security/renew_certs_2020/tls/* /opt/cloudera/security/tls/	
+ 
+
+
+
+--------------
+CRQ content with Security Services-Access Mgmt -  Identity Management Request
+
+Please sign and return the certificates as per the below instructions -
+
+•	The signed certificates must be provided in PEM format with base-64 encoding
+•	The signed certificates must have the same name as the associated CSR file, with a .pem extension instead of .csr
+
+-----------

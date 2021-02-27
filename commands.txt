@@ -1,0 +1,46 @@
+If webpage not responding then check on CLI:
+
+For Navigator Web UI:
+curl -v --cacert /opt/cloudera/security/x509/truststore.pem https://jusdrhhdmp3r2.sabic.com:7187/login.html
+
+For jenkins:
+curl -v --cacert /opt/cloudera/security/x509/truststore.pem -u khansss https://jusdrhhded1r1.sabic.com:3505
+ 
+Below command to return the home directory of khansss from hdfs. This is to check if port 14000 is working from CLI.
+curl --negotiate -v --cacert /opt/cloudera/security/x509/truststore.pem -u khansss -i "https://jusdrhhdmd2r2.sabic.com:14000/webhdfs/v1?op=GETHOMEDIRECTORY&user.name=khansss"
+
+
+curl -v --cacert /opt/cloudera/security/x509/truststore.pem -u svc-osipidev "https://jusdrhhdmd2r2.sabic.com:14000/webhdfs/v1/?op=GETHOMEDIRECTORY"
+
+---------------------------------------------
+
+
+To list the open ports:
+lsof -i 
+netstat –atup or –tunlp
+
+To see the list of ports in use:
+netstat –tulnp
+To see more details with PID/Program name:
+Example:
+ ls -l /proc/52485/exe                                                                                                                                               
+lrwxrwxrwx 1 jenkins jenkins 0 Oct 29 13:44 /proc/52485/exe -> /usr/java/jdk1.8.0_144/jre/bin/java 
+ 
+Check if port is used by which service:
+netstat --tcp -a -n -p | grep 3838
+
+check the listening ports and applications on Linux:
+lsof -i -P -n | grep LISTEN
+ 
+Check proc details:
+cat /proc/4003/cmdline
+-----------------------------------------------
+
+SSSD restart:
+
+service sssd stop ; rm -f /var/lib/sss/db/* ; service sssd start 
+
+
+-------------------------------------------------------
+
+

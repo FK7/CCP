@@ -41,14 +41,13 @@
 ########################## Job.properties#############################
 
 ### Environment variables ####
-hiveServer2=jusdrhhdmd1r1.sabic.com
+hiveServer2=hdmd1r1..com
 
 
 #### Hive variables ####
 hive_jdbc_url=jdbc:hive2://${hiveServer2}:10000/default
-hive_kerberos_principal=hive/${hiveServer2}@SABICCORP.SABIC.COM
-
-nameNode=hdfs://sabic-dev-ns
+hive_kerberos_principal=hive/${hiveServer2}@CORP.COM
+nameNode=hdfs://dev-ns
 resourceManager=yarnrm
 
 inputTableName=petrokemya.pk_olefin3_nrt_interpolated

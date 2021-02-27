@@ -1,0 +1,63 @@
+Reference:
+
+Here is an example of how to create the keytab:
+$ ktutil
+ktutil: addent -password -p khanf2@MW.NA.CAT.COM -k 1 -e rc4-hmac
+Password for khanf2@MW.NA.CAT.COM: 
+ktutil: addent -password -p khanf2@MW.NA.CAT.COM -k 1 -e aes256-cts
+Password for khanf2@MW.NA.CAT.COM: 
+ktutil: addent -password -p khanf2@MW.NA.CAT.COM -k 1 -e aes128-cts
+Password for khanf2@MW.NA.CAT.COM: 
+ktutil: list
+slot KVNO Principal
+---- ---- ---------------------------------------------------------------------
+1 1 khanf2@MW.NA.CAT.COM
+2 2 khanf2@MW.NA.CAT.COM
+ktutil: wkt /tmp/khanf2.keytab
+ktutil: q
+$ ls –rtl /tmp/khanf2.keytab
+-rw------- 1 khanf2 hdddwadm 140 Jan 5 15:02 /tmp/khanf2.keytab
+[khanf2@arlhsdatat01 ~]$ kdestroy
+[khanf2@arlhsdatat01 ~]$ klist
+klist: No credentials cache found (ticket cache FILE:/tmp/krb5cc_25871)
+[khanf2@arlhsdatat01 ~]$ kinit -kt /tmp/khanf2.keytab khanf2@MW.NA.CAT.COM 
+[khanf2@arlhsdatat01 ~]$ klist
+Ticket cache: FILE:/tmp/krb5cc_25871
+Default principal: khanf2@MW.NA.CAT.COM
+
+Valid starting Expires Service principal
+01/05/16 15:05:38 01/06/16 01:05:38 krbtgt/MW.NA.CAT.COM@MW.NA.CAT.COM
+renew until 01/12/16 15:05:38
+
+impala-shell -i impalaqa.sabic.com -d default -k --ssl --ca_cert=/opt/cloudera/security/x509/truststore.pem
+
+addent -password -p svc-datapre@SABICCORP.SABIC.COM -k 1 -e aes256-cts
+addent -password -p svc-datapre@SABICCORP.SABIC.COM -k 1 -e aes128-cts
+
+addent -password -p khanffaa@SABICCORP.SABIC.COM -k 1 -e aes256-cts
+addent -password -p khanffaa@SABICCORP.SABIC.COM -k 1 -e aes128-cts
+
+addent -password -p svc-wmbddev@SABICCORP.SABIC.COM -k 1 -e aes256-cts
+addent -password -p svc-wmbddev@SABICCORP.SABIC.COM -k 1 -e aes128-cts
+
+addent -password -p khanffaa@SABICCORP.SABIC.COM -k 1 -e aes256-cts
+addent -password -p khanffaa@SABICCORP.SABIC.COM -k 1 -e aes128-cts
+
+DtestaccountPlatform?&^%ds02
+_______________________________________________________________________________________________________________________________
+
+$ kadmin -p admin@EXAMPLE.COM
+kadmin: add_principal vemkd/cluster1@EXAMPLE.COM
+# ktutil
+ktutil: add_entry -password -p vemkd/cluster1@ibm.com -k 1 -e des-cbc-sha1-kd 
+ktutil: add_entry -password -p vemkd/cluster1@ibm.com -k 1 -e arcfour-hmac-md5 
+ktutil: add_entry -password -p vemkd/cluster1@ibm.com -k 1 -e des-hmac-sha1 
+ktutil: add_entry -password -p vemkd/cluster1@ibm.com -k 1 -e des-cbc-md5 
+ktutil: wkt /path_to_keytab_file/vemkd.keytab 
+
+
+For Microsoft AD, an admin should use ktpass command. This command is really useful when you want to generate a keytab for AD service principal to be used in Linux environment. This can also use a given password or a random password (+rndpass):
+
+# ktpass /princ hive/sandbox.hortonworks.com@HWX.COM /pass <password> /mapuser hiveservice /pType KRB5_NT_PRINCIPAL /crypto ALL /out c:\temp\hive.service.keytab
+
+ktpass /princ host/Sample1.contoso.com@CONTOSO.COM /mapuser Sample1 /pass MyPas$w0rd /out Sample1.keytab /crypto all /ptype KRB5_NT_PRINCIPAL /mapop set 
